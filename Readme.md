@@ -18,6 +18,7 @@ Test Data
 Links
 -----
 http://docs.aws.amazon.com/lambda/latest/dg/java-handler-io-type-pojo.html
+https://github.com/rob-baily/aws-lambda-spring
 
 Handler
 -------
