@@ -1,6 +1,6 @@
-package example;
+package uk.co.keithsjohnson.lambda.api;
 
-public class ResponseClass {
+public class LambdaResponse {
 	String greetings;
 
 	public String getGreetings() {
@@ -11,11 +11,11 @@ public class ResponseClass {
 		this.greetings = greetings;
 	}
 
-	public ResponseClass(String greetings) {
+	public LambdaResponse(String greetings) {
 		this.greetings = greetings;
 	}
 
-	public ResponseClass() {
+	public LambdaResponse() {
 	}
 
 }

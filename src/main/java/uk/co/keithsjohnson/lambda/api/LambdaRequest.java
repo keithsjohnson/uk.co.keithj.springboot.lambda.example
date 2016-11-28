@@ -1,8 +1,8 @@
-package example;
+package uk.co.keithsjohnson.lambda.api;
 
-public class RequestClass {
-	String firstName;
-	String lastName;
+public class LambdaRequest {
+	private String firstName;
+	private String lastName;
 
 	public String getFirstName() {
 		return firstName;
@@ -20,11 +20,11 @@ public class RequestClass {
 		this.lastName = lastName;
 	}
 
-	public RequestClass(String firstName, String lastName) {
+	public LambdaRequest(String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 	}
 
-	public RequestClass() {
+	public LambdaRequest() {
 	}
 }

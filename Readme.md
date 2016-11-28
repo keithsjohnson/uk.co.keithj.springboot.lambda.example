@@ -27,3 +27,7 @@ example.Hello::myHandler
 Deployment File
 ---------------
 build/distributions/uk.co.keithj.springboot.lambda.example-1.0.zip
+
+
+uk.co.keithsjohnson.lambda.handler.LambdaRequestHandler::requestHandler
+uk.co.keithsjohnson.lambda.handler.LambdaSNSEventHandler::handleSNSEvent
