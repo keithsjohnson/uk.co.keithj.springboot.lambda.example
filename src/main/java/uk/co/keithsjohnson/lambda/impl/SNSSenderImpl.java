@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
 
 import uk.co.keithsjohnson.lambda.api.SNSSender;
 
@@ -22,7 +23,7 @@ public class SNSSenderImpl implements SNSSender {
 	private AmazonSNSClient amazonSNSClient;
 
 	@Override
-	public void sendWithSNS(String uniqueId) {
+	public String sendWithSNS(String uniqueId) {
 		log.info("amazonSNSClient sendMessage");
 
 		MessageAttributeValue messageAttributeValue = new MessageAttributeValue();
@@ -36,9 +37,12 @@ public class SNSSenderImpl implements SNSSender {
 		publishRequest.setTopicArn("arn:aws:sns:eu-west-1:656423721434:snsDemo");
 		publishRequest.setMessage("Hi SNS Demo with uniqueId: " + uniqueId);
 		publishRequest.setMessageAttributes(messageAttributes);
+		publishRequest.putCustomQueryParameter("uniqueId", uniqueId);
+		publishRequest.putCustomRequestHeader("uniqueId", uniqueId);
 
-		amazonSNSClient.publish(publishRequest);
+		PublishResult publishResult = amazonSNSClient.publish(publishRequest);
 
-		log.info("amazonSNSClient sendMessage DONE");
+		log.info("amazonSNSClient sendMessage DONE publishResult.getMessageId()=" + publishResult.getMessageId());
+		return publishResult.getMessageId();
 	}
 }

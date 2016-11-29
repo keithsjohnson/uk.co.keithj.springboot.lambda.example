@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -33,11 +34,13 @@ public class SQSReceiverImpl implements SQSReceiver {
 		ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
 		receiveMessageRequest.setQueueUrl("https://sqs.eu-west-1.amazonaws.com/656423721434/demo");
 		receiveMessageRequest.setAttributeNames(Arrays.asList("All"));
-		int sdkRequestTimeout = 100;
+		receiveMessageRequest.putCustomQueryParameter("uniqueId", uniqueId);
+		receiveMessageRequest.putCustomRequestHeader("uniqueId", uniqueId);
+		int sdkRequestTimeout = 200;
 		receiveMessageRequest.setSdkRequestTimeout(sdkRequestTimeout);
 		receiveMessageRequest.withMessageAttributeNames("uniqueId");
 
-		int maxRetries = 3;
+		int maxRetries = 10;
 
 		Optional<Message> optionalMessage = null;
 		int tryCount = 1;
@@ -61,8 +64,9 @@ public class SQSReceiverImpl implements SQSReceiver {
 				deleteMessageRequest.setQueueUrl("https://sqs.eu-west-1.amazonaws.com/656423721434/demo");
 				deleteMessageRequest.setReceiptHandle(optionalMessage.get().getReceiptHandle());
 
-				amazonSQSClient.deleteMessage(deleteMessageRequest);
-				log.info("amazonSQSClient.deleted Message");
+				DeleteMessageResult deleteMessageResult = amazonSQSClient.deleteMessage(deleteMessageRequest);
+				log.info("amazonSQSClient.deleted Message:  deleteMessageResult.hashCode()="
+						+ deleteMessageResult.hashCode());
 			} else {
 				log.info("NOT found Message with UniqueId " + uniqueId);
 			}
@@ -77,6 +81,7 @@ public class SQSReceiverImpl implements SQSReceiver {
 
 	public static Predicate<Message> messageHasUniqueId(String uniqueId) {
 		return message -> {
+			log.info("message message.getMessageId()=" + message.getMessageId());
 			Map<String, MessageAttributeValue> messageAttributes = message.getMessageAttributes();
 			MessageAttributeValue messageAttributeValue = messageAttributes.get("uniqueId");
 			if (messageAttributeValue == null) {

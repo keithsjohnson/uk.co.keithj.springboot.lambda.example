@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.MessageAttributeValue;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageResult;
 
 import uk.co.keithsjohnson.lambda.api.SQSSender;
 
@@ -23,7 +24,7 @@ public class SQSSenderImpl implements SQSSender {
 	private AmazonSQSClient amazonSQSClient;
 
 	@Override
-	public void sendWithSQS(String uniqueId) {
+	public String sendWithSQS(String uniqueId) {
 		log.info("amazonSQSClient sendMessage");
 		SendMessageRequest sendMessageRequest = new SendMessageRequest();
 		sendMessageRequest.setMessageBody("Hi Demo Queue with uniqueId: " + uniqueId);
@@ -37,10 +38,14 @@ public class SQSSenderImpl implements SQSSender {
 		messageAttributes.put("uniqueId", messageAttributeValue);
 
 		sendMessageRequest.setMessageAttributes(messageAttributes);
+		sendMessageRequest.putCustomQueryParameter("uniqueId", uniqueId);
+		sendMessageRequest.putCustomRequestHeader("uniqueId", uniqueId);
 
-		amazonSQSClient.sendMessage(sendMessageRequest);
+		SendMessageResult sendMessageResult = amazonSQSClient.sendMessage(sendMessageRequest);
 
-		log.info("amazonSQSClient sendMessage DONE");
+		log.info("amazonSQSClient sendMessage DONE - sendMessageResult.getMessageId()="
+				+ sendMessageResult.getMessageId());
+		return sendMessageResult.getMessageId();
 	}
 
 }
