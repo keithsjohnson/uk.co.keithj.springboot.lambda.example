@@ -23,7 +23,7 @@ public class SNSSenderImpl implements SNSSender {
 	private AmazonSNSClient amazonSNSClient;
 
 	@Override
-	public String sendWithSNS(String uniqueId) {
+	public String sendWithSNS(String uniqueId, String message) {
 		log.info("amazonSNSClient sendMessage");
 
 		MessageAttributeValue messageAttributeValue = new MessageAttributeValue();
@@ -35,7 +35,7 @@ public class SNSSenderImpl implements SNSSender {
 
 		PublishRequest publishRequest = new PublishRequest();
 		publishRequest.setTopicArn("arn:aws:sns:eu-west-1:656423721434:snsDemo");
-		publishRequest.setMessage("Hi SNS Demo with uniqueId: " + uniqueId);
+		publishRequest.setMessage(message + uniqueId);
 		publishRequest.setMessageAttributes(messageAttributes);
 		publishRequest.putCustomQueryParameter("uniqueId", uniqueId);
 		publishRequest.putCustomRequestHeader("uniqueId", uniqueId);

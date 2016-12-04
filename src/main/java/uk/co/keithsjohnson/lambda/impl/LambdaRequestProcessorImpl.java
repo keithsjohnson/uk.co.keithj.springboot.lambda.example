@@ -1,5 +1,6 @@
 package uk.co.keithsjohnson.lambda.impl;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.lambda.runtime.Context;
 
+import uk.co.keithsjohnson.lambda.api.DynamoDBReader;
+import uk.co.keithsjohnson.lambda.api.DynamoDBWriter;
 import uk.co.keithsjohnson.lambda.api.LambdaRequestProcessor;
 import uk.co.keithsjohnson.lambda.api.SNSSender;
 import uk.co.keithsjohnson.lambda.api.SQSReceiver;
@@ -47,6 +50,12 @@ public class LambdaRequestProcessorImpl implements LambdaRequestProcessor {
 	@Autowired
 	private TestConfiguration testConfiguration;
 
+	@Autowired
+	private DynamoDBWriter dynamoDBWriter;
+
+	@Autowired
+	private DynamoDBReader dynamoDBReader;
+
 	@Override
 	public String processRequest(String name, Context context) {
 		log.info("In the hello function");
@@ -59,11 +68,26 @@ public class LambdaRequestProcessorImpl implements LambdaRequestProcessor {
 
 		// sqsSender.sendWithSQS(uniqueId);
 
-		snsSender.sendWithSNS(uniqueId);
+		// snsSender.sendWithSNS(uniqueId, "Hi SNS Demo with uniqueId: ");
 
-		sqsReceiver.receiveMessageFromSQSWithUniqueId(uniqueId);
+		// String postCode = dynamoDBWriter.getPostcode("ST5 4EP", context);
 
-		return String.format("Hello %s.", name);
+		dynamoDBWriter.writeMessageToQueueTable(uniqueId, "First DynamoDB Message", context);
+
+		Optional<String> optionalMessage = dynamoDBReader.getMessageWithId(uniqueId, context);
+
+		String message = null;
+
+		if (optionalMessage.isPresent()) {
+			dynamoDBWriter.deleteMessageFromResponseQueueTable(uniqueId, context);
+			message = optionalMessage.get();
+		} else {
+			message = "NOT FOUND";
+		}
+
+		// sqsReceiver.receiveMessageFromSQSWithUniqueId(uniqueId);
+
+		return String.format("Hello %s. Message: %s", name, message);
 	}
 
 	protected void useCamel(String name) {
